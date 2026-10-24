@@ -3,24 +3,24 @@
 Voraussetzung: JDK 27. Start in PowerShell im Projektordner:
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+.\dev.ps1
 ```
 
-Frontend: http://localhost:8080 (voreingestellt auf den Auftrags-Tag 2026-10-24).
+Frontend: http://127.0.0.1:8095 (voreingestellt auf den Auftrags-Tag 2026-10-24).
 Die Anwendung hört nur auf 127.0.0.1. Alle Zugänge teilen sich denselben BuchungsService.
 
 ## REST
 
 ```powershell
-Invoke-RestMethod 'http://localhost:8080/api/raeume/frei?datum=2026-10-24'
-Invoke-RestMethod 'http://localhost:8080/api/buchungen' -Method Post -ContentType 'application/json' -Body '{"raum":"Ticino","datum":"2026-10-24","fuer":"Teammeeting"}'
+Invoke-RestMethod 'http://127.0.0.1:8095/api/raeume/frei?datum=2026-10-24'
+Invoke-RestMethod 'http://127.0.0.1:8095/api/buchungen' -Method Post -ContentType 'application/json' -Body '{"raum":"Ticino","datum":"2026-10-24","fuer":"Teammeeting"}'
 ```
 
 Buchung: HTTP 201 bei Erfolg, 409 bei Belegung, 400 bei ungültigen Eingaben.
 
 ## MCP
 
-Transport: Streamable HTTP, Endpunkt: http://localhost:8080/mcp.
+Transport: Streamable HTTP, Endpunkt: http://127.0.0.1:8095/raum-mcp.
 Die Anwendung muss laufen, bevor sich ein MCP-Client verbindet.
 Die Projektdatei `.mcp.json` konfiguriert Claude Code dafür.
 Werkzeuge: `raeume_frei(datum)` und `raum_buchen(raum, datum, fuer)`.
@@ -41,5 +41,12 @@ Die Maps sind nur im Arbeitsspeicher; ein Neustart setzt alles auf die Ausgangsl
 ## Tests
 
 ```powershell
-.\mvnw.cmd test
+.\dev.ps1 test
 ```
+
+Das Windows-Skript verwendet den Windows-Zertifikatsspeicher und einen kurzen
+temporären Socket-Pfad. Beide Einstellungen gelten nur für diesen Aufruf.
+Port 8095 wurde gewählt, weil 8080 und 8081 auf diesem Rechner belegt waren.
+Der alternative MCP-Pfad vermeidet einen in dieser Umgebung beobachteten
+HTTP-Framing-Fehler unter `/mcp`; die Ursache ausserhalb der Buchungslogik ist nicht abschliessend geklärt.
+Spring AI wurde auf Patch-Version 2.0.2 aktualisiert.
