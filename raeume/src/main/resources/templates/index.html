@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Räume · Raumbuchung</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+    <header><span class="brand">RÄUME / FFHS</span><span class="badge">Raumbuchung</span></header>
+    <section class="intro"><p class="eyebrow">PLATZ FÜR DEINE IDEEN</p><h1>Der passende Raum.<br>Für deinen nächsten Termin.</h1>
+        <p>Wähle einen Tag und reserviere einen freien Raum für dein Team.</p></section>
+    <form class="date-filter" method="get" action="/">
+        <label for="datum">Dein Termin</label>
+        <input id="datum" name="datum" type="date" required th:value="${datum}">
+        <button type="submit">Verfügbarkeit anzeigen</button>
+    </form>
+    <p class="message success" role="status" th:if="${erfolg}" th:text="${erfolg}"></p>
+    <p class="message error" role="alert" th:if="${fehler}" th:text="${fehler}"></p>
+    <section class="rooms" aria-label="Räume">
+        <article class="room" th:each="raum : ${raeume}">
+            <div class="room-top"><span class="symbol" aria-hidden="true">↗</span>
+                <span class="availability" th:classappend="${!raum.frei()} ? 'occupied'" th:text="${raum.frei()} ? 'Verfügbar' : 'Belegt'"></span></div>
+            <h2 th:text="${raum.name()}"></h2><p class="capacity"><strong th:text="${raum.plaetze()}"></strong> Plätze</p>
+            <form th:if="${raum.frei()}" method="post" action="/buchen">
+                <input type="hidden" name="raum" th:value="${raum.name()}">
+                <input type="hidden" name="datum" th:value="${datum}">
+                <label th:for="${'anlass-' + raum.name()}">Anlass</label>
+                <input th:id="${'anlass-' + raum.name()}" name="fuer" placeholder="z. B. Teammeeting" maxlength="120" required>
+                <button type="submit" class="book">Raum verbindlich buchen <span aria-hidden="true">→</span></button>
+            </form>
+            <div class="reservation" th:unless="${raum.frei()}"><p>Bereits reserviert für</p><strong th:text="${raum.anlass()}"></strong><p>Wähle einen anderen Raum oder Tag.</p></div>
+        </article>
+    </section>
+    <footer>Übungsbetrieb · Buchungen bleiben bis zum Neustart der Anwendung gespeichert.</footer>
+</main>
+</body>
+</html>
